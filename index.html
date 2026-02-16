@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Pipeline — Webhook Form</title>
+    <meta name="description"
+        content="Submit lecture content to the Video Pipeline n8n webhook for automated video generation." />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <!-- ── Header ─────────────────────────────────────────── -->
+    <header class="app-header">
+        <h1>🎬 Video Pipeline</h1>
+        <p>Compose &amp; submit lecture content to the video generation webhook</p>
+    </header>
+
+    <!-- ── Main grid ──────────────────────────────────────── -->
+    <div class="app-container">
+
+        <!-- ════════ LEFT: Form ════════ -->
+        <div class="form-panel">
+
+            <!-- Webhook URL bar -->
+            <div class="card" style="margin-bottom:1.2rem">
+                <div class="section-title"><span class="dot"></span>Webhook Endpoint</div>
+                <div class="webhook-bar">
+                    <div class="toggle-group">
+                        <span class="toggle-label active" id="lbl-test">Test</span>
+                        <div class="toggle-track" id="env-toggle" role="switch" aria-checked="false" tabindex="0"></div>
+                        <span class="toggle-label" id="lbl-prod">Prod</span>
+                    </div>
+                    <input type="text" class="webhook-url-input" id="webhook-url"
+                        value="https://n8n.aloha.university/webhook-test/video-pipeline" placeholder="https://…" />
+                </div>
+            </div>
+
+            <form id="pipeline-form" novalidate autocomplete="off">
+
+                <!-- ── Job ID ───────────────────────────────────── -->
+                <div class="card" style="margin-bottom:1.2rem">
+                    <div class="section-title"><span class="dot"></span>Job ID <span
+                            style="color:var(--text-dim);font-size:.7rem;text-transform:none;letter-spacing:0;font-weight:400">optional</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="jobId">Unique identifier (auto-generated if left blank)</label>
+                        <input type="text" id="jobId" name="jobId" placeholder="my-bio-101-lecture" maxlength="255"
+                            pattern="^[a-zA-Z0-9_\-\.]+$" />
+                        <p class="hint">Letters, numbers, hyphens, underscores, dots only</p>
+                        <p class="error-msg">Invalid characters — use only letters, numbers, _ - .</p>
+                    </div>
+                </div>
+
+                <!-- ── Course (required) ────────────────────────── -->
+                <div class="card" style="margin-bottom:1.2rem">
+                    <div class="section-title"><span class="dot"></span>Course <span
+                            class="required-badge">required</span></div>
+
+                    <div class="form-group">
+                        <label for="courseName">Course Name *</label>
+                        <input type="text" id="courseName" name="courseName" required
+                            placeholder="BIOL 101 – Introduction to Biology" maxlength="200" />
+                        <p class="error-msg">Course name is required</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sectionTitle">Section / Chapter Title *</label>
+                        <input type="text" id="sectionTitle" name="sectionTitle" required
+                            placeholder="Chapter 3 — Cell Membranes" maxlength="200" />
+                        <p class="error-msg">Section title is required</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="voiceId">Voice ID</label>
+                        <input type="text" id="voiceId" name="voiceId" placeholder="DEFAULT" />
+                        <p class="hint">Inworld TTS voice ID. Leave blank for default.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="styleLock">Style Lock</label>
+                        <textarea id="styleLock" name="styleLock" rows="2" maxlength="500"
+                            placeholder="clean educational motion graphics, consistent palette, no on-screen text in generated video clips"></textarea>
+                        <p class="hint">Visual directive for Sora 2 clips. Defaults shown in placeholder.</p>
+                    </div>
+                </div>
+
+                <!-- ── Source Content ───────────────────────────── -->
+                <div class="card" style="margin-bottom:1.2rem">
+                    <div class="section-title"><span class="dot"></span>Source Content</div>
+
+                    <div class="source-tabs">
+                        <button type="button" class="source-tab active" data-source="html">HTML (preferred)</button>
+                        <button type="button" class="source-tab" data-source="text">Plain Text</button>
+                    </div>
+
+                    <div class="source-pane active" id="pane-html">
+                        <div class="form-group">
+                            <label for="sourceHtml">Paste HTML content body</label>
+                            <textarea id="sourceHtml" name="sourceHtml" rows="8" maxlength="100000"
+                                placeholder='<h2>Cell Membranes</h2><p>Cell membranes are composed of a <strong>phospholipid bilayer</strong>...</p>'></textarea>
+                            <div class="word-count" id="wc-html"></div>
+                            <p class="hint">Recommended: 800–3 000 words for a 10–20 min video.</p>
+                        </div>
+                    </div>
+
+                    <div class="source-pane" id="pane-text">
+                        <div class="form-group">
+                            <label for="sourceText">Paste plain text</label>
+                            <textarea id="sourceText" name="sourceText" rows="8" maxlength="50000"
+                                placeholder="Cell membranes are composed of a phospholipid bilayer…"></textarea>
+                            <div class="word-count" id="wc-text"></div>
+                            <p class="hint">Minimum 100 characters. Used only if HTML is not provided.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Constraints (collapsible) ────────────────── -->
+                <div class="card" style="margin-bottom:1.2rem">
+                    <button type="button" class="constraints-toggle" id="constraints-toggle">
+                        <span><span class="dot"
+                                style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:6px;vertical-align:middle"></span>CONSTRAINTS
+                            <span
+                                style="color:var(--text-dim);font-size:.7rem;text-transform:none;letter-spacing:0;font-weight:400">optional
+                                — defaults shown</span></span>
+                        <span class="chevron">▼</span>
+                    </button>
+
+                    <div class="constraints-body" id="constraints-body">
+                        <!-- Each constraint slider -->
+                        <div class="constraint-item">
+                            <label>Target Minutes (min) <span class="default-badge">default: 10</span></label>
+                            <div class="range-row">
+                                <input type="range" id="c-targetMinutesMin" min="1" max="60" value="10" />
+                                <span class="range-value" id="v-targetMinutesMin">10</span>
+                            </div>
+                        </div>
+                        <div class="constraint-item">
+                            <label>Target Minutes (max) <span class="default-badge">default: 20</span></label>
+                            <div class="range-row">
+                                <input type="range" id="c-targetMinutesMax" min="2" max="120" value="20" />
+                                <span class="range-value" id="v-targetMinutesMax">20</span>
+                            </div>
+                        </div>
+                        <div class="constraint-item">
+                            <label>Min Slides <span class="default-badge">default: 10</span></label>
+                            <div class="range-row">
+                                <input type="range" id="c-minSlides" min="3" max="50" value="10" />
+                                <span class="range-value" id="v-minSlides">10</span>
+                            </div>
+                        </div>
+                        <div class="constraint-item">
+                            <label>Max Slides <span class="default-badge">default: 18</span></label>
+                            <div class="range-row">
+                                <input type="range" id="c-maxSlides" min="5" max="50" value="18" />
+                                <span class="range-value" id="v-maxSlides">18</span>
+                            </div>
+                        </div>
+                        <div class="constraint-item">
+                            <label>WPM Target <span class="default-badge">default: 140</span></label>
+                            <div class="range-row">
+                                <input type="range" id="c-wpmTarget" min="80" max="200" value="140" />
+                                <span class="range-value" id="v-wpmTarget">140</span>
+                            </div>
+                        </div>
+                        <div class="constraint-item">
+                            <label>Max Clips <span class="default-badge">default: 6</span></label>
+                            <div class="range-row">
+                                <input type="range" id="c-maxClips" min="0" max="12" value="6" />
+                                <span class="range-value" id="v-maxClips">6</span>
+                            </div>
+                        </div>
+                        <div class="constraint-item">
+                            <label>Clip Duration (min sec) <span class="default-badge">default: 3</span></label>
+                            <div class="range-row">
+                                <input type="range" id="c-clipDurationMin" min="1" max="15" value="3" />
+                                <span class="range-value" id="v-clipDurationMin">3</span>
+                            </div>
+                        </div>
+                        <div class="constraint-item">
+                            <label>Clip Duration (max sec) <span class="default-badge">default: 10</span></label>
+                            <div class="range-row">
+                                <input type="range" id="c-clipDurationMax" min="3" max="30" value="10" />
+                                <span class="range-value" id="v-clipDurationMax">10</span>
+                            </div>
+                        </div>
+                        <div class="constraint-item">
+                            <label>Inworld Max Chars <span class="default-badge">default: 2000</span></label>
+                            <div class="range-row">
+                                <input type="range" id="c-inworldMaxChars" min="500" max="10000" step="100"
+                                    value="2000" />
+                                <span class="range-value" id="v-inworldMaxChars">2000</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Submit ───────────────────────────────────── -->
+                <div class="submit-row">
+                    <button type="submit" class="submit-btn" id="submit-btn">
+                        <span class="spinner"></span>
+                        <span class="btn-text">🚀 Send to Pipeline</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- ════════ RIGHT: Preview ════════ -->
+        <div class="preview-panel card" style="align-self:start;position:sticky;top:1.2rem">
+            <div class="preview-header">
+                <h3>Live JSON Preview</h3>
+                <button type="button" class="copy-btn" id="copy-btn">Copy</button>
+            </div>
+            <pre class="json-preview" id="json-preview"></pre>
+        </div>
+
+    </div><!-- /app-container -->
+
+    <!-- ── Toast container ────────────────────────────────── -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
