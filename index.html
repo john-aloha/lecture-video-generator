@@ -40,17 +40,24 @@
 
             <form id="pipeline-form" novalidate autocomplete="off">
 
-                <!-- ── Job ID ───────────────────────────────────── -->
+                <!-- ── Job ID (collapsible, hidden by default) ──── -->
                 <div class="card" style="margin-bottom:1.2rem">
-                    <div class="section-title"><span class="dot"></span>Job ID <span
-                            style="color:var(--text-dim);font-size:.7rem;text-transform:none;letter-spacing:0;font-weight:400">optional</span>
-                    </div>
-                    <div class="form-group">
-                        <label for="jobId">Unique identifier (auto-generated if left blank)</label>
-                        <input type="text" id="jobId" name="jobId" placeholder="my-bio-101-lecture" maxlength="255"
-                            pattern="^[a-zA-Z0-9_\-\.]+$" />
-                        <p class="hint">Letters, numbers, hyphens, underscores, dots only</p>
-                        <p class="error-msg">Invalid characters — use only letters, numbers, _ - .</p>
+                    <button type="button" class="constraints-toggle" id="jobid-toggle">
+                        <span><span class="dot"
+                                style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:6px;vertical-align:middle"></span>JOB
+                            ID
+                            <span
+                                style="color:var(--text-dim);font-size:.7rem;text-transform:none;letter-spacing:0;font-weight:400">optional</span></span>
+                        <span class="chevron">▼</span>
+                    </button>
+                    <div class="jobid-body" id="jobid-body">
+                        <div class="form-group">
+                            <label for="jobId">Unique identifier (auto-generated if left blank)</label>
+                            <input type="text" id="jobId" name="jobId" placeholder="my-bio-101-lecture" maxlength="255"
+                                pattern="^[a-zA-Z0-9_\-\.]+$" />
+                            <p class="hint">Letters, numbers, hyphens, underscores, dots only</p>
+                            <p class="error-msg">Invalid characters — use only letters, numbers, _ - .</p>
+                        </div>
                     </div>
                 </div>
 
@@ -74,9 +81,28 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="voiceId">Voice ID</label>
-                        <input type="text" id="voiceId" name="voiceId" placeholder="DEFAULT" />
-                        <p class="hint">Inworld TTS voice ID. Leave blank for default.</p>
+                        <label for="voiceId">Voice</label>
+                        <select id="voiceId" name="voiceId">
+                            <option value="DEFAULT" selected>Default (env setting)</option>
+                            <optgroup label="── Narration & Education ──">
+                                <option value="Blake">Blake — Narrator, clear & authoritative</option>
+                                <option value="Mark">Mark — Commentator, engaging & dynamic</option>
+                                <option value="Luna">Luna — Meditation instructor, calm & soothing</option>
+                            </optgroup>
+                            <optgroup label="── Conversational ──">
+                                <option value="Ashley">Ashley — Warm, natural American female</option>
+                                <option value="Olivia">Olivia — Upbeat, friendly British female</option>
+                                <option value="Diego">Diego — Soothing, gentle Mexican male</option>
+                                <option value="Edward">Edward — Fast-talking, emphatic American male</option>
+                                <option value="Alex">Alex — Neutral, versatile</option>
+                            </optgroup>
+                            <optgroup label="── Character ──">
+                                <option value="Hades">Hades — Deep character voice</option>
+                                <option value="Hana">Hana — Companion, warm & friendly</option>
+                                <option value="Clive">Clive — Support agent, professional</option>
+                            </optgroup>
+                        </select>
+                        <p class="hint">Inworld TTS voice. "Default" uses the server environment setting.</p>
                     </div>
 
                     <div class="form-group">

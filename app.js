@@ -72,6 +72,14 @@
         constraintsBody.classList.toggle('open');
     });
 
+    /* ── Job ID toggle (collapsed by default) ─────────────────── */
+    const jobidToggle = $('#jobid-toggle');
+    const jobidBody = $('#jobid-body');
+    jobidToggle.addEventListener('click', () => {
+        jobidToggle.classList.toggle('open');
+        jobidBody.classList.toggle('open');
+    });
+
     /* ── Range sliders ────────────────────────────────────────── */
     const constraintKeys = [
         'targetMinutesMin', 'targetMinutesMax', 'minSlides', 'maxSlides',
@@ -123,7 +131,7 @@
         course.courseName = $('#courseName').value.trim();
         course.sectionTitle = $('#sectionTitle').value.trim();
 
-        const voiceId = $('#voiceId').value.trim();
+        const voiceId = $('#voiceId').value;
         if (voiceId && voiceId !== DEFAULTS.voiceId) course.voiceId = voiceId;
 
         const styleLock = $('#styleLock').value.trim();

@@ -363,6 +363,19 @@ textarea::placeholder {
     padding-top: .6rem
 }
 
+.jobid-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .4s ease, opacity .3s ease;
+    opacity: 0;
+}
+
+.jobid-body.open {
+    max-height: 200px;
+    opacity: 1;
+    padding-top: .6rem
+}
+
 .constraint-item {
     display: flex;
     flex-direction: column;
